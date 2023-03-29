@@ -1,0 +1,336 @@
+<%-include("../partials/header.ejs")%>
+  
+  <style>
+        @import url('https://fonts.googleapis.com/css?family=Fjalla+One&display=swap');
+    @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap");
+
+:root {
+  --bg: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/38816/image-from-rawpixel-id-2210775-jpeg.jpg);
+}
+
+body {
+  font-family: "Fjalla One", sans-serif;
+  background: var(--bg) center center no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  max-width:100%;
+  height: 100vh;
+  overflow-x: hidden;
+  align-items: center;
+  justify-items: center;
+}
+    .card {
+  margin-bottom: 20px;
+  margin-left: 20px;
+  width:450px;
+  height:300px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: #f9f9f9;
+  padding: 10px 15px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-footer {
+  background-color: #f9f9f9;
+  padding: 10px 15px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.card-footer button {
+  border-radius: 20px;
+}
+    .like-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.like-button.animated {
+  -webkit-animation: pop 0.9s both;
+  animation: pop 0.9s both;
+}
+.like-button svg {
+  opacity: 1;
+}
+.like-button svg path {
+  fill: #333;
+}
+
+@-webkit-keyframes pop {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  30% {
+    -webkit-transform: scale3d(1.25, 0.75, 1);
+    transform: scale3d(1.25, 0.75, 1);
+  }
+  40% {
+    -webkit-transform: scale3d(0.75, 1.25, 1);
+    transform: scale3d(0.75, 1.25, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.15, 0.85, 1);
+    transform: scale3d(1.15, 0.85, 1);
+  }
+  65% {
+    -webkit-transform: scale3d(0.95, 1.05, 1);
+    transform: scale3d(0.95, 1.05, 1);
+  }
+  75% {
+    -webkit-transform: scale3d(1.05, 0.95, 1);
+    transform: scale3d(1.05, 0.95, 1);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+  .uppercase{
+    text-transform: uppercase;
+  }
+    
+@keyframes pop {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  30% {
+    -webkit-transform: scale3d(1.25, 0.75, 1);
+    transform: scale3d(1.25, 0.75, 1);
+  }
+  40% {
+    -webkit-transform: scale3d(0.75, 1.25, 1);
+    transform: scale3d(0.75, 1.25, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.15, 0.85, 1);
+    transform: scale3d(1.15, 0.85, 1);
+  }
+  65% {
+    -webkit-transform: scale3d(0.95, 1.05, 1);
+    transform: scale3d(0.95, 1.05, 1);
+  }
+  75% {
+    -webkit-transform: scale3d(1.05, 0.95, 1);
+    transform: scale3d(1.05, 0.95, 1);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+} 
+    .like-number{
+      position:absolute;
+      top:259px;
+      left:240px;
+    }
+  </style>
+  <script>
+    let data2
+
+    window.onload = function() {
+      document.onselectstart = function() { return false; }
+      data2 = JSON.parse(document.getElementById("getData").innerHTML)
+
+      let cont = 1;
+      data2.forEach(function(item){
+        if(item.liked == "true"){
+          document.getElementById("like-img" + cont).style.fill = 'red'
+          document.getElementById("like-number" + cont).style.color = 'red'
+        }
+        cont++
+      })
+    }
+
+    let debounce = true;
+    let button = document.querySelector(".like-button");
+
+async function toggleLike(x, cont) {
+  
+  if (debounce) {
+    debounce = false;
+    if (document.getElementById("like-number" + cont).innerHTML > 0) {
+      document.getElementById("like-number" + cont).innerHTML -= 1;
+      data2[cont - 1].liked = "false"
+      data2[cont - 1].likes = document.getElementById("like-number" + cont).innerHTML
+      if (document.getElementById("like-number" + cont).innerHTML == 0) {
+        document.getElementById("like-number" + cont).style.color = null;
+      }
+    } else {
+      data2[cont - 1].liked = "true"
+      document.getElementById("like-number" + cont).innerHTML = parseInt(document.getElementById("like-number" + cont).innerHTML) + 1;
+      document.getElementById("like-number" + cont).style.color = 'red';
+      data2[cont - 1].likes = document.getElementById("like-number" + cont).innerHTML
+    }
+    
+    const url = "/update-json";
+    const options = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data2)
+        };
+        fetch(url, options)
+          .then(response => response.json())
+          .then(json => console.log())
+          .catch(error => console.error());
+    
+    if(document.getElementById("like-img" + cont).style.fill == 'red'){
+      document.getElementById("like-img" + cont).style.fill = null
+    }else{
+      document.getElementById("like-img" + cont).style.fill = 'red'
+    }
+    x.classList.add("animated");
+    generateClones(x);
+    await sleep(1000);
+    debounce = true;
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+    function openData(id,name,title,description){
+  const div1 = document.createElement("div");
+  const div2 = document.createElement("div");
+  const div3 = document.createElement("div");
+  const div4 = document.createElement("div");
+
+  div1.style.width = "100%";
+  div1.style.height = "100%";
+  div1.style.backgroundColor = 'white';
+  div1.style.position = "fixed";
+  div1.style.top = "0";
+  div1.style.left = "0";
+
+  div2.style.width="100%";
+  div2.style.height="70px";
+  div2.style.backgroundColor = 'red';
+  div2.style.textAlign = 'center';
+  div2.style.paddingTop = "5px";
+  div2.style.fontSize = "1cm";
+  div2.style.position = "fixed";
+  div2.style.top = "55";
+  div2.style.left = "0";
+
+  div3.style.width="100%";
+  div3.style.height="70px";
+  div3.style.backgroundColor = 'green';
+  div3.style.textAlign = 'center';
+  div3.style.paddingTop = "5px";
+  div3.style.fontSize = "1cm";
+  div3.style.position = "fixed";
+  div3.style.top = "125";
+  div3.style.left = "0";
+
+  div4.style.width="100%";
+  div4.style.height="20%";
+  div4.style.backgroundColor = 'blue';
+  div4.style.textAlign = 'center';
+  div4.style.paddingTop = "5px";
+  div4.style.fontSize = "1cm";
+  div4.style.position = "fixed";
+  div4.style.top = "195";
+  div4.style.left = "0";
+
+  document.body.appendChild(div1);
+  document.body.appendChild(div2);
+  document.body.appendChild(div3);
+  document.body.appendChild(div4);
+
+  div2.innerHTML = "Made by: " + name;
+  div3.innerHTML = title;
+  div4.innerHTML = description;
+}
+
+function generateClones(button) {
+  let clones = randomInt(2, 4);
+  for (let it = 1; it <= clones; it++) {
+    let clone = button.querySelector("svg").cloneNode(true),
+      size = randomInt(5, 16);
+    button.appendChild(clone);
+    clone.setAttribute("width", size);
+    clone.setAttribute("height", size);
+    clone.style.position = "absolute";
+    clone.style.transition =
+      "transform 0.5s cubic-bezier(0.12, 0.74, 0.58, 0.99) 0.3s, opacity 1s ease-out .5s";
+    let animTimeout = setTimeout(function() {
+      clearTimeout(animTimeout);
+      clone.style.transform =
+        "translate3d(" +
+        (plusOrMinus() * randomInt(10, 25)) +
+        "px," +
+        (plusOrMinus() * randomInt(10, 25)) +
+        "px,0)";
+      clone.style.opacity = 0;
+    }, 1);
+    let removeNodeTimeout = setTimeout(function() {
+      clone.parentNode.removeChild(clone);
+      clearTimeout(removeNodeTimeout);
+    }, 900);
+    let removeClassTimeout = setTimeout(function() {
+      button.classList.remove("animated")
+    }, 600);
+  }
+}
+
+
+function plusOrMinus() {
+  return Math.random() < 0.5 ? -1 : 1;
+}
+
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+    
+  </script>
+  <section>
+    <div class="row" style="position:absolute;
+      top:70px">
+      <% let cont = 0 %>
+    <% data.forEach(function(item) {%>
+      <% cont++; %>
+      <div class="col">
+      <div class="card p-2">
+        <div class="card-header">
+          <img onclick="openData(<%= cont %>,'<%= item.name %>','<%= item.title %>','<%= item.description %>')" src="<%= item.link %>" style="height:50px;width:50px" alt="NOT FOUND" class="rounded-circle me-2">
+    <span class="fw-bold"><%= item.name %></span>
+  </div>
+  <div class="card-body">
+    <p class="uppercase"><b><%= item.title %></b></p>
+    <p class="card-text"><i><%= item.description %></i></p>
+  </div>
+  <div class="card-footer">
+    <a style="width:5%" onclick="toggleLike(this,<%= cont %>)" class="like-button" >
+<svg height="25" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" >
+  <path fill="#ff0000" id="like-img<%= cont %>" d="M12,4.2c-1.6-1.6-4.2-1.6-5.8,0C2.7,7.4,2.7,12,12,19.2c9.3-7.2,9.3-11.8,5.8-15.1C16.2,2.6,13.6,2.6,12,4.2z"/>
+</svg>
+
+
+</a>
+    <p class="like-number" id="like-number<%= cont %>"><%= item.likes %></p>
+  </div>
+</div>
+        <% if(cont == data.length) { %>
+          <br>
+          <br>
+          <% } %>
+        </div>
+     <% }); %>
+     </div>
+<p id="getData" style="position:absolute;bottom:1000%"><%= dataString %></p>
+</section>
+<%- include("../partials/footer.ejs") %>
